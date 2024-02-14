@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Payable {
+  id             String        @id @default(uuid())
+  payment_date   DateTime      @default(now())
+  payment_status PayableStatus @default(waiting_funds)
+
+  Transaction Transaction[]
+
+  // @@unique([])
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  value_in_cents Int
+  description    String        @db.VarChar(64)
+  payment_method PaymentMethod @default(debit_card)
+  card_number    String        @db.VarChar(16)
+  name           String
+  expireAt       DateTime
+  cvv            String        @db.VarChar(3)
+
+  payableId String
+  payable   Payable @relation(fields: [payableId], references: [id])
+}
+
+enum PaymentMethod {
+  debit_card
+  credit_card
+}
+
+enum PayableStatus {
+  paid
+  waiting_funds
+}
