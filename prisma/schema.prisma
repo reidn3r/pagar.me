@@ -11,26 +11,26 @@ datasource db {
 }
 
 model Payable {
-  id             String        @id @default(uuid())
-  payment_date   DateTime      @default(now())
-  payment_status PayableStatus @default(waiting_funds)
+  id                     String        @id @default(uuid())
+  payment_date           DateTime      @default(now())
+  payment_status         PayableStatus @default(waiting_funds)
+  final_payable_in_cents Int           @db.Integer
 
-  Transaction Transaction[]
-
-  // @@unique([])
+  transaction Transaction[]
 }
 
 model Transaction {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 
-  value_in_cents Int
-  description    String        @db.VarChar(64)
-  payment_method PaymentMethod @default(debit_card)
-  card_number    String        @db.VarChar(16)
-  name           String
-  expireAt       DateTime
-  cvv            String        @db.VarChar(3)
+  value_in_cents    Int           @db.Integer
+  fee_in_percentage Int           @db.Integer
+  description       String        @db.VarChar(64)
+  payment_method    PaymentMethod @default(debit_card)
+  card_number       String        @db.VarChar(16)
+  name              String        @db.VarChar(64)
+  expireAt          DateTime      @db.Date
+  cvv               String        @db.VarChar(3)
 
   payableId String
   payable   Payable @relation(fields: [payableId], references: [id])
